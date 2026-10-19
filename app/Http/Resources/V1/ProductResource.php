@@ -1,0 +1,61 @@
+<?php 
+ 
+namespace App\Http\Resources\V1; 
+ 
+use Illuminate\Http\Request; 
+use Illuminate\Http\Resources\Json\JsonResource; 
+ 
+class ProductResource extends JsonResource { 
+    public function toArray(Request $request): array { 
+        $routePrefix = $request->routeIs('api.*') ? 'api.v1.' : '';
+
+        return [ 
+            'type' => 'product', 
+ 
+            'id' => $this->id, 
+ 
+            'attributes' => [ 
+                'name' => $this->name, 
+                'description' => $this->when( 
+                    !$request->routeIs('api.products.index', 'products.index'),
+                    $this->description 
+                ), 
+ 
+                'price' => $this->price, 
+                'createdAt' => $this->created_at, 
+                'updatedAt' => $this->updated_at, 
+            ], 
+ 
+            'relationships' => [ 
+                'category' => [ 
+                    'data' => [ 
+                        'type' => 'category', 
+                        'id' => $this->category_id, 
+                    ], 
+ 
+                    'links' => [ 
+                        'self' => route( 
+                           $routePrefix . 'categories.show',
+                [
+                    'category' => $this->category_id 
+                ]
+                        ), 
+                    ], 
+                ], 
+            ], 
+ 
+            'links' => [ 
+                'self' => route( 
+                    $routePrefix . 'products.show',
+   
+ 
+   
+ 
+                    [ 
+                        'product' => $this->id 
+                    ] 
+                ), 
+            ], 
+        ]; 
+    } 
+} 
