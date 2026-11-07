@@ -26,12 +26,27 @@ class ProductController extends Controller
 
     public function queries()
     {
+        // Category Totals & Averages
+        $categoryTotals = DB::table('products')
+            ->join('categories', 'products.category_id', '=', 'categories.id')
+            ->select('categories.name', DB::raw('SUM(products.price) as total_price'))
+            ->groupBy('categories.id', 'categories.name')
+            ->get();
+
+        $categoryAverages = DB::table('products')
+            ->join('categories', 'products.category_id', '=', 'categories.id')
+            ->select('categories.name', DB::raw('AVG(products.price) as avg_price'))
+            ->groupBy('categories.id', 'categories.name')
+            ->get();
+
         return response()->json([
             'totalProducts' => Product::count(),
             'totalValue' => Product::sum('price'),
             'avgPrice' => Product::avg('price'),
             'maxPrice' => Product::max('price'),
             'minPrice' => Product::min('price'),
+            'categoryTotals' => $categoryTotals,
+            'categoryAverages' => $categoryAverages,
         ]);
     }
 }
